@@ -1,0 +1,23 @@
+---
+title: "EDA"
+description: |
+  Alison's EDA before collaboration
+author: "Alison Yao"
+date: "11/22/2021"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Joining Dataset
+
+First, read the 3 csv files downloaded from 2019 OECD study of violence against women.
+
+```{r load-data}
+summary(cars)
+```
+
+## Plots
+
