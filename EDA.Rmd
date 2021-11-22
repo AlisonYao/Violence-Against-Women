@@ -10,6 +10,7 @@ output: distill::distill_article
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(brms)
 ```
 
 ## Load Dataset
@@ -30,7 +31,7 @@ prevalence_df = read.csv('./Data/prevalence.csv')
 
 ## Initial Findings
 
-By just Eyeballing the data, I can see that:
+By just eyeballing the data, I can see that:
 1. Not all countries are listed and not all countries have record on all three features.
 2. The range of three features are different (0-100% or 0-1). Strange thing is that law only has 4 values: 0.25, 0.5, 0.75 and 1. It looks more categorical than continuous. 
 3. The countries are abbreviated...so I need some way to match the code with the names
@@ -83,7 +84,7 @@ Indeed, there are 11 empty values in Attitude and 34 in Prevalence.
 
 ## Plots
 
-Although we already have some amazing interactive visualization on the data source website, we visualize a bit more here.
+Although we already have some amazing interactive visualization on the data source website, we need to do a bit more vis here.
 
 ### Single Variable
 
@@ -99,6 +100,8 @@ df %>%
   )
 ```
 
+Positively skewed. 
+
 ```{r}
 df %>% 
   ggplot(aes(x = Prevalence)) +
@@ -110,6 +113,8 @@ df %>%
     y = 'Frequency'
   )
 ```
+
+Positively skewed. 
 
 ```{r}
 df %>% 
@@ -124,7 +129,7 @@ df %>%
   )
 ```
 
-This one is not so informative because there are only 4 values. 
+This one is not so informative because there are only 4 values. Are we really treating it as continuous?
 
 ### Multi-variable
 
@@ -132,6 +137,7 @@ This one is not so informative because there are only 4 values.
 df %>% 
   ggplot(aes(x = Attitude, y = Prevalence)) +
   geom_point() + 
+  stat_smooth(method="lm") +
   labs(
     title = 'Scatterplot of Prevalence vs Attitude',
     x = 'Attitude',
@@ -145,6 +151,7 @@ We can see a positive correlation.
 df %>% 
   ggplot(aes(x = Law, y = Prevalence)) +
   geom_point() + 
+  stat_smooth(method="lm") +
   labs(
     title = 'Scatterplot of Prevalence vs Law',
     x = 'Law',
@@ -157,6 +164,7 @@ df %>%
 df %>% 
   ggplot(aes(x = Law, y = Attitude)) +
   geom_point() + 
+  stat_smooth(method="lm") +
   labs(
     title = 'Scatterplot of Attitude vs Law',
     x = 'Law',
@@ -164,7 +172,7 @@ df %>%
   )
 ```
 
-
+Now, this is definitely categorical. We really should be doing an ANOVA instead of a regression. 
 
 ```{r}
 library('plotly')
@@ -175,3 +183,19 @@ plot_ly(x=df$Attitude,
 ```
 
 This looks fancy but is pretty useless. I cannot see much from this 3D plot.
+
+## Regression
+
+Since we cannot see much from the plots, let's do a regression analysis to quantify the relationship.  
+
+I think the y should be prevalence, because it seems to be the result of attitude and law. Let's put the prevalence on the left hand side of the equation.
+
+```{r}
+reg1 <- brm(formula = Prevalence ~ Attitude + Law,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123)
+summary(reg1)
+```
+
+
