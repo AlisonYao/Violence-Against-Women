@@ -149,6 +149,18 @@ We can see a positive correlation.
 
 ```{r}
 df %>% 
+  ggplot(aes(x = as.factor(Law), y = Prevalence)) +
+  geom_boxplot() + 
+  labs(
+    title = 'Boxplot of Prevalence vs Law',
+    x = 'Law',
+    y = 'Prevalence'
+  )
+```
+
+
+```{r}
+df %>% 
   ggplot(aes(x = Law, y = Prevalence)) +
   geom_point() + 
   stat_smooth(method="lm") +
@@ -156,6 +168,17 @@ df %>%
     title = 'Scatterplot of Prevalence vs Law',
     x = 'Law',
     y = 'Prevalence'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = as.factor(Law), y = Attitude)) +
+  geom_boxplot() + 
+  labs(
+    title = 'Boxplot of Attitude vs Law',
+    x = 'Law',
+    y = 'Attitude'
   )
 ```
 
@@ -172,7 +195,7 @@ df %>%
   )
 ```
 
-Now, this is definitely categorical. We really should be doing an ANOVA instead of a regression. 
+Now, this is definitely categorical. 
 
 ```{r}
 library('plotly')
@@ -182,7 +205,7 @@ plot_ly(x=df$Attitude,
         type="scatter3d")
 ```
 
-This looks fancy but is pretty useless. I cannot see much from this 3D plot.
+This looks fancy but is pretty useless. I cannot see much from this 3D plot. I can't see any obvious regression plane. The model is probably not going to have a high R-squared. 
 
 ## Regression
 
