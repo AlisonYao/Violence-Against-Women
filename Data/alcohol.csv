@@ -1,0 +1,267 @@
+﻿Country Name,Country Code,alcohol_pc
+Aruba,ABW,
+Africa Eastern and Southern,AFE,5.17091073
+Afghanistan,AFG,0.21
+Africa Western and Central,AFW,6.835266062
+Angola,AGO,6.94
+Albania,ALB,7.17
+Andorra,AND,11.02
+Arab World,ARB,0.618598082
+United Arab Emirates,ARE,3.9
+Argentina,ARG,9.65
+Armenia,ARM,5.55
+American Samoa,ASM,
+Antigua and Barbuda,ATG,6.38
+Australia,AUS,10.51
+Austria,AUT,11.96
+Azerbaijan,AZE,4.41
+Burundi,BDI,7.19
+Belgium,BEL,11.08
+Benin,BEN,2.81
+Burkina Faso,BFA,12.03
+Bangladesh,BGD,0.019
+Bulgaria,BGR,12.65
+Bahrain,BHR,1.09
+"Bahamas, The",BHS,4.78
+Bosnia and Herzegovina,BIH,7.15
+Belarus,BLR,11.45
+Belize,BLZ,6.22
+Bermuda,BMU,
+Bolivia,BOL,4.43
+Brazil,BRA,7.42
+Barbados,BRB,9.69
+Brunei Darussalam,BRN,0.48
+Bhutan,BTN,0.43
+Botswana,BWA,6.59
+Central African Republic,CAF,2.38
+Canada,CAN,8.94
+Central Europe and the Baltics,CEB,11.93207958
+Switzerland,CHE,11.53
+Channel Islands,CHI,
+Chile,CHL,9.07
+China,CHN,7.05
+Cote d'Ivoire,CIV,2.71
+Cameroon,CMR,5.65
+"Congo, Dem. Rep.",COD,2
+"Congo, Rep.",COG,9.27
+Colombia,COL,5.74
+Comoros,COM,0.69
+Cabo Verde,CPV,5.6
+Costa Rica,CRI,4.87
+Caribbean small states,CSS,5.794512657
+Cuba,CUB,5.83
+Curacao,CUW,
+Cayman Islands,CYM,
+Cyprus,CYP,10.81
+Czech Republic,CZE,14.45
+Germany,DEU,12.91
+Djibouti,DJI,0.43
+Dominica,DMA,11.18
+Denmark,DNK,10.26
+Dominican Republic,DOM,6.68
+Algeria,DZA,0.95
+East Asia & Pacific (excluding high income),EAP,6.194505725
+Early-demographic dividend,EAR,3.892436163
+East Asia & Pacific,EAS,6.430730189
+Europe & Central Asia (excluding high income),ECA,7.680729612
+Europe & Central Asia,ECS,9.764031941
+Ecuador,ECU,4.2
+"Egypt, Arab Rep.",EGY,0.36
+Euro area,EMU,11.40251253
+Eritrea,ERI,1.44
+Spain,ESP,12.72
+Estonia,EST,9.23
+Ethiopia,ETH,2.36
+European Union,EUU,11.44471551
+Fragile and conflict affected situations,FCS,4.358818954
+Finland,FIN,10.78
+Fiji,FJI,3.32
+France,FRA,12.33
+Faroe Islands,FRO,
+"Micronesia, Fed. Sts.",FSM,2.48
+Gabon,GAB,8.74
+United Kingdom,GBR,11.45
+Georgia,GEO,8.25
+Ghana,GHA,2.75
+Gibraltar,GIB,
+Guinea,GIN,1.11
+"Gambia, The",GMB,3.55
+Guinea-Bissau,GNB,5.38
+Equatorial Guinea,GNQ,7.23
+Greece,GRC,10.18
+Grenada,GRD,9.48
+Greenland,GRL,
+Guatemala,GTM,2.45
+Guam,GUM,
+Guyana,GUY,6.89
+High income,HIC,9.779655995
+"Hong Kong SAR, China",HKG,
+Honduras,HND,3.76
+Heavily indebted poor countries (HIPC),HPC,4.065759856
+Croatia,HRV,9.23
+Haiti,HTI,2.73
+Hungary,HUN,11.35
+IBRD only,IBD,5.97662907
+IDA & IBRD total,IBT,5.487421484
+IDA total,IDA,3.683914896
+IDA blend,IDB,4.626759114
+Indonesia,IDN,0.57
+IDA only,IDX,3.201362804
+Isle of Man,IMN,
+India,IND,5.54
+Not classified,INX,
+Ireland,IRL,12.88
+"Iran, Islamic Rep.",IRN,1.03
+Iraq,IRQ,0.39
+Iceland,ISL,9.12
+Israel,ISR,4.21
+Italy,ITA,7.84
+Jamaica,JAM,4.22
+Jordan,JOR,0.69
+Japan,JPN,7.96
+Kazakhstan,KAZ,4.76
+Kenya,KEN,2.78
+Kyrgyz Republic,KGZ,6.26
+Cambodia,KHM,6.64
+Kiribati,KIR,0.46
+St. Kitts and Nevis,KNA,8.94
+"Korea, Rep.",KOR,9.7
+Kuwait,KWT,0.003
+Latin America & Caribbean (excluding high income),LAC,6.33674686
+Lao PDR,LAO,10.72
+Lebanon,LBN,1.71
+Liberia,LBR,6.12
+Libya,LBY,0.019
+St. Lucia,LCA,10.6
+Latin America & Caribbean,LCN,6.331605519
+Least developed countries: UN classification,LDC,3.33836611
+Low income,LIC,3.195235954
+Liechtenstein,LIE,
+Sri Lanka,LKA,4.1
+Lower middle income,LMC,4.43451737
+Low & middle income,LMY,5.4271187
+Lesotho,LSO,4.59
+Late-demographic dividend,LTE,7.24966961
+Lithuania,LTU,13.22
+Luxembourg,LUX,12.94
+Latvia,LVA,12.77
+"Macao SAR, China",MAC,
+St. Martin (French part),MAF,
+Morocco,MAR,0.69
+Monaco,MCO,
+Moldova,MDA,11.43
+Madagascar,MDG,1.97
+Maldives,MDV,2.22
+Middle East & North Africa,MEA,0.812701073
+Mexico,MEX,5
+Marshall Islands,MHL,
+Middle income,MIC,5.615465949
+North Macedonia,MKD,6.16
+Mali,MLI,1.28
+Malta,MLT,7.99
+Myanmar,MMR,5.12
+Middle East & North Africa (excluding high income),MNA,0.682973122
+Montenegro,MNE,11.47
+Mongolia,MNG,8.19
+Northern Mariana Islands,MNP,
+Mozambique,MOZ,2.3
+Mauritania,MRT,0.036
+Mauritius,MUS,4.35
+Malawi,MWI,3.63
+Malaysia,MYS,0.85
+North America,NAC,9.772314908
+Namibia,NAM,5.43
+New Caledonia,NCL,
+Niger,NER,0.67
+Nigeria,NGA,10.84
+Nicaragua,NIC,5.18
+Netherlands,NLD,9.61
+Norway,NOR,7.41
+Nepal,NPL,2.05
+Nauru,NRU,3.71
+New Zealand,NZL,10.63
+OECD members,OED,9.192062122
+Oman,OMN,0.78
+Other small states,OSS,5.115111992
+Pakistan,PAK,0.34
+Panama,PAN,7.98
+Peru,PER,6.38
+Philippines,PHL,6.86
+Palau,PLW,
+Papua New Guinea,PNG,1.39
+Poland,POL,11.71
+Pre-demographic dividend,PRE,5.567612589
+Puerto Rico,PRI,
+"Korea, Dem. People's Rep.",PRK,3.8
+Portugal,PRT,12.03
+Paraguay,PRY,7.58
+West Bank and Gaza,PSE,
+Pacific island small states,PSS,2.471719194
+Post-demographic dividend,PST,10.09703177
+French Polynesia,PYF,
+Qatar,QAT,1.59
+Romania,ROU,11.74
+Russian Federation,RUS,11.19
+Rwanda,RWA,8.95
+South Asia,SAS,4.333294381
+Saudi Arabia,SAU,0.19
+Sudan,SDN,0.51
+Senegal,SEN,0.76
+Singapore,SGP,2.03
+Solomon Islands,SLB,1.83
+Sierra Leone,SLE,5.7
+El Salvador,SLV,3.89
+San Marino,SMR,
+Somalia,SOM,0.009
+Serbia,SRB,8.75
+Sub-Saharan Africa (excluding high income),SSA,5.835743457
+South Sudan,SSD,
+Sub-Saharan Africa,SSF,5.837510432
+Small states,SST,5.104703759
+Sao Tome and Principe,STP,5.88
+Suriname,SUR,5.33
+Slovak Republic,SVK,11.14
+Slovenia,SVN,11.9
+Sweden,SWE,8.93
+Eswatini,SWZ,10.04
+Sint Maarten (Dutch part),SXM,
+Seychelles,SYC,20.5
+Syrian Arab Republic,SYR,0.24
+Turks and Caicos Islands,TCA,
+Chad,TCD,1.37
+East Asia & Pacific (IDA & IBRD countries),TEA,6.224374693
+Europe & Central Asia (IDA & IBRD countries),TEC,8.053197891
+Togo,TGO,2.46
+Thailand,THA,8.3
+Tajikistan,TJK,3.28
+Turkmenistan,TKM,4.93
+Latin America & the Caribbean (IDA & IBRD countries),TLA,6.341037019
+Timor-Leste,TLS,2.17
+Middle East & North Africa (IDA & IBRD countries),TMN,0.682973122
+Tonga,TON,0.8
+South Asia (IDA & IBRD),TSA,4.333294381
+Sub-Saharan Africa (IDA & IBRD countries),TSS,5.837510432
+Trinidad and Tobago,TTO,6.72
+Tunisia,TUN,2.12
+Turkey,TUR,2.05
+Tuvalu,TUV,1.52
+Tanzania,TZA,11.27
+Uganda,UGA,15.09
+Ukraine,UKR,8.32
+Upper middle income,UMC,6.963591804
+Uruguay,URY,6.92
+United States,USA,9.87
+Uzbekistan,UZB,2.59
+St. Vincent and the Grenadines,VCT,9.06
+"Venezuela, RB",VEN,4.14
+British Virgin Islands,VGB,
+Virgin Islands (U.S.),VIR,
+Vietnam,VNM,8.66
+Vanuatu,VUT,2.25
+World,WLD,6.18140363
+Samoa,WSM,2.66
+Kosovo,XKX,
+"Yemen, Rep.",YEM,0.051
+South Africa,ZAF,9.52
+Zambia,ZMB,6.54
+Zimbabwe,ZWE,4.67

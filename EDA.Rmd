@@ -17,11 +17,11 @@ library(brms)
 
 First, read the 3 csv files downloaded from 2019 OECD study of violence against women.
 
- - Attitudes toward violence: The percentage of women who agree that a husband/partner is justified in beating his wife/partner under certain circumstances 
- 
- - Prevalence of violence in the lifetime: The percentage of women who have experienced physical and/or sexual violence from an intimate partner at some time in their life
- 
- - Laws on domestic violence: Whether the legal framework offers women legal protection from domestic violence Laws on domestic violence are presented as values ranging from 0 to 1, where 0 means that laws or practices do not discriminate against women’s rights and 1 means laws or practices fully discriminate against women’s rights.
+-   Attitudes toward violence: The percentage of women who agree that a husband/partner is justified in beating his wife/partner under certain circumstances
+
+-   Prevalence of violence in the lifetime: The percentage of women who have experienced physical and/or sexual violence from an intimate partner at some time in their life
+
+-   Laws on domestic violence: Whether the legal framework offers women legal protection from domestic violence Laws on domestic violence are presented as values ranging from 0 to 1, where 0 means that laws or practices do not discriminate against women's rights and 1 means laws or practices fully discriminate against women's rights.
 
 ```{r load-data}
 attitude_df = read.csv('./Data/attitude.csv')
@@ -31,10 +31,7 @@ prevalence_df = read.csv('./Data/prevalence.csv')
 
 ## Initial Findings
 
-By just eyeballing the data, I can see that:
-1. Not all countries are listed and not all countries have record on all three features.
-2. The range of three features are different (0-100% or 0-1). Strange thing is that law only has 4 values: 0.25, 0.5, 0.75 and 1. It looks more categorical than continuous. 
-3. The countries are abbreviated...so I need some way to match the code with the names
+By just eyeballing the data, I can see that: 1. Not all countries are listed and not all countries have record on all three features. 2. The range of three features are different (0-100% or 0-1). Strange thing is that law only has 4 values: 0.25, 0.5, 0.75 and 1. It looks more categorical than continuous. 3. The countries are abbreviated...so I need some way to match the code with the names
 
 ```{r load-code}
 # Data Source: https://www.iban.com/country-codes
@@ -56,7 +53,7 @@ check_code(prevalence_df)
 # There should not be any output - Awesome!
 ```
 
-So now I have a way to match the country codes to their English names. 
+So now I have a way to match the country codes to their English names.
 
 ## Join Data
 
@@ -80,7 +77,7 @@ Looks good! But there must be many empty values. Let's check.
 summary(df)
 ```
 
-Indeed, there are 11 empty values in Attitude and 34 in Prevalence. 
+Indeed, there are 11 empty values in Attitude and 34 in Prevalence.
 
 ## Plots
 
@@ -100,7 +97,7 @@ df %>%
   )
 ```
 
-Positively skewed. 
+Positively skewed.
 
 ```{r}
 df %>% 
@@ -114,7 +111,7 @@ df %>%
   )
 ```
 
-Positively skewed. 
+Positively skewed.
 
 ```{r}
 df %>% 
@@ -145,7 +142,7 @@ df %>%
   )
 ```
 
-We can see a positive correlation. 
+We can see a positive correlation.
 
 ```{r}
 df %>% 
@@ -157,7 +154,6 @@ df %>%
     y = 'Prevalence'
   )
 ```
-
 
 ```{r}
 df %>% 
@@ -182,7 +178,6 @@ df %>%
   )
 ```
 
-
 ```{r}
 df %>% 
   ggplot(aes(x = Law, y = Attitude)) +
@@ -195,7 +190,7 @@ df %>%
   )
 ```
 
-Now, this is definitely categorical. 
+Now, this is definitely categorical.
 
 ```{r}
 library('plotly')
@@ -205,11 +200,11 @@ plot_ly(x=df$Attitude,
         type="scatter3d")
 ```
 
-This looks fancy but is pretty useless. I cannot see much from this 3D plot. I can't see any obvious regression plane. The model is probably not going to have a high R-squared. 
+This looks fancy but is pretty useless. I cannot see much from this 3D plot. I can't see any obvious regression plane. The model is probably not going to have a high R-squared.
 
 ## Regression
 
-Since we cannot see much from the plots, let's do a regression analysis to quantify the relationship.  
+Since we cannot see much from the plots, let's do a regression analysis to quantify the relationship.
 
 I think the y should be prevalence, because it seems to be the result of attitude and law. Let's put the prevalence on the left hand side of the equation.
 
@@ -220,5 +215,3 @@ reg1 <- brm(formula = Prevalence ~ Attitude + Law,
                        seed = 123)
 summary(reg1)
 ```
-
-
