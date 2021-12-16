@@ -1,0 +1,8 @@
+Hello Alison, 
+
+Great work!
+
+ When you use in-text r code for the estimated coefficients, you can round the numbers by using the function roung(value, 2). 
+For example, 
+For a 1 unit increase in `pandemic_prep`, the number of COVID-19 deaths increased by `r round(fixef(deaths_univ_mod)[2], 2)` on average
+

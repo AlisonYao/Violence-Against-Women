@@ -1,0 +1,153 @@
+---
+title: "Lab 03 - Nobel laureates"
+author: "Alison Yao, Oscar Bray"
+date: "7/10/21"
+output: html_document
+---
+
+### Load packages and data
+
+```{r load-packages, message=FALSE}
+library(tidyverse) 
+```
+
+```{r load-data, message=FALSE}
+nobel <- read_csv("data/nobel.csv")
+```
+
+## Exercises
+
+### Exercise 1
+
+There are **935** observations (ie Nobel laureates) and **26** variables (ie categories of information) in this data set. Each row represents a different Nobel laureate.
+
+```{r load-library}
+library(skimr)
+```
+
+```{r skim-data}
+skim(nobel)
+```
+
+The `skim` function might be an overkill, `nrow()` and `ncol()` also works:
+
+```{r count-row-col}
+nrow(nobel)
+ncol(nobel)
+```
+
+
+### Exercise 2
+
+Filtering the original dataframe using 3 conditions, then save the new dataframe to `nobel_living`.
+
+```{r nobel-living}
+nobel_living <- nobel %>% 
+  filter(!is.na(country) &
+           gender != "org" & 
+           is.na(died_date))
+```
+
+And indeed, we do get 228 observations. Yay!
+
+```{r count-row}
+nrow(nobel_living)
+```
+
+Before doing exercise3, following the instructions, let's make a `nobel_living_science` dataframe.
+
+```{r add-column}
+nobel_living <- nobel_living %>%
+  mutate(
+    country_us = if_else(country == "USA", "USA", "Other")
+  )
+```
+
+```{r filter-category}
+nobel_living_science <- nobel_living %>%
+  filter(category %in% c("Physics", "Medicine", "Chemistry", "Economics"))
+```
+
+
+### Exercise 3
+
+```{r winning-country-facet}
+nobel_living_science %>% 
+  ggplot(aes(x = country_us,
+             color = category,
+             fill = category)) +
+    geom_bar() +
+    coord_flip() +
+  facet_wrap(~ category) + 
+  labs(
+    title = 'Do Most Science Nobel Laureates Win Their Nobel Prizes in the US?',
+    subtitle = 'Faceted by Chemistry, Economics, Medicine, Physics',
+    x = 'Winning Country',
+    y = 'Frequency')
+```
+
+
+These plots show that there is a disparity in Nobel laureates in the US versus other countries, especially between economics laureates. This means that the Buzzfeed headline's proposal that 'immigration is important for American science' is supported because the fact that most laureates are from the US indicates a 'brain drain' in other countries. This means that the data could be used to support the idea that scientists are immigrating from other countries to the US and therefore winning more Nobel laureates for the US. However, to fully support this idea, we would need to demonstrate that the country of origin for most of the US scientists is outside the US, since then they would have immigrated thus supporting the argument.
+
+### Exercise 4
+
+There are **105** winners who were born in the US.
+
+```{r add-born_country_us-column}
+born_country_us <- nobel_living_science %>%  
+  mutate(
+    born_country_us = if_else(born_country == "USA", "USA", "Other")
+  )
+```
+
+```{r count-USA}
+filter(born_country_us, born_country_us == "USA") %>% 
+  count()
+```
+
+### Exercise 5
+
+```{r USA-facet}
+born_country_us %>% 
+  ggplot(aes(x = country_us, 
+             fill = born_country_us)) +
+    geom_bar() +
+    coord_flip() +
+  facet_wrap(~ category) +
+  labs(
+    title = 'Where Are Science Nobel Laureates Originally From?',
+    subtitle = 'Faceted by Chemistry, Economics, Medicine, Physics',
+    x = 'Winning Country',
+    y = 'Frequency', 
+    fill = "Birth Country")
+```
+
+Now we can see that the data somewhat supports Buzzfeed's hypothesis about immigration correlating with more US-based Nobel laureates. While the majority of winners based in the US were from the US originally, the amount that came from other countries is not insignificant, constituting between a quarter and a third of all US-based laureates in every subject except economics. This means that immigrants to the US have contributed a significant amount of Nobel prize wins.
+
+### Exercise 6
+
+**Germany** and the **UK** are the most common.
+
+```{r born-country-frequency-table}
+born_country_us %>% 
+  filter(country_us == 'USA' & born_country != 'USA') %>% 
+  count(born_country) %>% 
+  arrange(desc(n))
+```
+
+We also used the data in this frequency table to create a bar plot, in case the HW want us to recreate the buzzfeed visualization.
+
+```{r born-country-frequency-barplot}
+born_country_us %>% 
+  filter(country_us == 'USA' & born_country != 'USA') %>% 
+  count(born_country) %>% 
+  ggplot(aes(x = reorder(born_country, n), 
+           y = n)) + 
+    geom_bar(stat="identity") + 
+    coord_flip() +
+    labs(
+      title = 'US Immigrant Nobelist Birth Country',
+      x = 'Birth Country',
+      y = 'Count'
+    )
+```

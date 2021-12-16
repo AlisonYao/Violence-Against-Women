@@ -1,0 +1,227 @@
+---
+title: "Lab 04 - La Quinta is Spanish for next to Denny's, Pt. 1"
+author: "Alison Yao"
+date: "Oct 8, 2021"
+output: github_document
+---
+
+<!-- instructions: https://rstudio-education.github.io/datascience-box/course-materials/lab-instructions/lab-04/lab-04-viz-sp-data.html -->
+
+### Load packages and data
+
+```{r load-packages, message = FALSE}
+library(tidyverse) 
+library(dsbox) 
+```
+
+```{r load-data, message = FALSE}
+states <- read_csv("data/states.csv")
+```
+
+### Exercise 1
+
+The dimension of `dennys` is `r dim(dennys)`, which means there are `r nrow(dennys)` observations and `r ncol(dennys)` variables. Each row represents the features of one Denny's diner. The variables include address, city, state, zip, longitude and latitude.
+
+### Exercise 2
+
+The dimension of `laquinta` is `r dim(laquinta)`, which means there are `r nrow(laquinta)` observations and `r ncol(laquinta)` variables. Each row represents the features of one La Quinta hotel. The variables include address, city, state, zip, longitude and latitude.
+
+### Exercise 3
+
+According to La Quinta's website, they also have hotels in Canada, Mexico, New Zealand, Honduras, Turkey, UAE, Chile and Colombia. According to Denny's website, all of their diners are in the US. 
+
+### Exercise 4
+
+The abbreviation variable in states matches the state variable in dennys and laquinta, so we can use anti_join to check if there are any locations outside of US states. 
+
+There are 14 La Quinta hotels outside of the US. They are in Mexico, Colombia, Canada, and Honduras. This does not match the website, probably because the data collected is outdated.
+
+```{r laquinta-outside-US}
+anti_join(laquinta, states, by=c('state' = 'abbreviation')) %>% 
+  select(address, city)
+```
+
+There are 0 Denny's diner outside of the US. 
+
+```{r dennys-outside-US}
+anti_join(dennys, states, by=c('state' = 'abbreviation')) %>% 
+  select(address, city)
+```
+
+### Exercise 5
+
+Mine thinks the same as me. Yay! But she is using filter instead of anti_join.
+
+```{r dennys-outside-US-filter}
+dennys %>%
+  filter(!(state %in% states$abbreviation))
+```
+
+The table has no observations, so there are no Denny's outside of the US. 
+
+### Exercise 6
+
+We need to save the results to dennys variable so that we can store the new dataframe with the new variable country.
+
+```{r dennys-add-country-variable}
+dennys <-dennys %>%
+  mutate(country = "United States")
+```
+
+### Exercise 7
+
+Here, I use filter to see if I get the same results as using anti_join. And I do.
+
+```{r laquinta-filter}
+laquinta %>%
+  filter(!(state %in% states$abbreviation))
+```
+
+There are 14 La Quinta hotels outside of the US. They are in Mexico, Colombia, Canada, and Honduras.
+
+ - 10 in Mexico: Aguascalientes (AG), Cancun (QR), Col Partido Iglesias Juarez (CH), Parque Industrial Interamerican Apodaca (NL), Col. Centro Monterrey (NL), Monterrey (NL), Poza Rica (VE), San Jose Chiapa (PU), Col. ReservaTerritorial Atlixcayotl San Puebla (PU), San Luis Potosi (SL)
+
+ - 1 in Colombia: Medellin Colombia (ANT)
+
+ - 2 in Canada: Oshawa (ON), Richmond (BC)
+
+ - 1 in Honduras: contiguo Mall Las Cascadas Tegucigalpa (FM)
+
+### Exercise 8
+
+We need to find all the state abbreviations for each city and then add a new column to the original dataframes. 
+
+```{r laquinta-add-country-variable}
+laquinta <- laquinta %>%
+  mutate(country = case_when(
+    state %in% state.abb                                     ~ "United States",
+    state %in% c("ON", "BC")                                 ~ "Canada",
+    state == "ANT"                                           ~ "Colombia",
+    state == "FM"                                            ~ "Honduras",
+    state %in% c('AG', 'QR', 'CH', 'NL', 'VE', 'PU', 'SL')   ~ "Mexico",
+  ))
+```
+
+Before moving forward, we first filter out the data in US for La Quinta.
+
+```{r laquinta-filter-only-US}
+laquinta <- laquinta %>%
+  filter(country == "United States")
+```
+
+### Exercise 9
+
+California has the most Denny's locations while Delaware has the fewest. The huge number in California is not surprising because Denny's started in California and its founder Harold Butler is also from California. Delaware is not very surprising either because it is not one of those big cities where economy is booming.
+
+```{r dennys-state-frequency}
+dennys %>% 
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation")) %>% 
+  arrange(desc(n))
+```
+
+Texas has the most La Quinta locations while Maine has the fewest. The huge number in Texas is 3 times as much as Florida (74), which is tremendous. But it's not surprising on second thought because similar to the previous case, its founder Sam Barshop was born in Texas and has deep roots in Texas. Maine is not very surprising because the residential density is low and it is not on the top list for traveling, so it probably would not be very profitable for hotels.
+
+```{r laquinta-state-frequency}
+laquinta %>% 
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation")) %>% 
+  arrange(desc(n))
+```
+Before moving on, let's test this code:
+
+```{r dennys-join-state}
+dennys %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation"))
+```
+
+Everything seems good.
+
+### Exercise 10
+
+The District of Columbia has the most Denny’s locations per thousand square miles.
+
+```{r dennys-state-location-per-sm}
+dennys %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation")) %>% 
+  summarise(state = state, 
+            name = name,
+            location_per_thousand_sm = n / area * 1000) %>% 
+  arrange(desc(location_per_thousand_sm))
+```
+
+Rhode Island has the most La Quinta locations per thousand square miles.
+
+```{r laquinta-state-location-per-sm}
+laquinta %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation")) %>% 
+  summarise(state = state, 
+            name = name,
+            location_per_thousand_sm = n / area * 1000) %>% 
+  arrange(desc(location_per_thousand_sm))
+```
+
+Now, we prep for the visualizations. First, add an identifier variable.
+
+```{r dataframe-identifier}
+dennys <- dennys %>%
+  mutate(establishment = "Denny's")
+laquinta <- laquinta %>%
+  mutate(establishment = "La Quinta")
+```
+
+Since the two data frames have the same columns, we can easily bind them with the bind_rows function:
+
+```{r bind-dataframe}
+dn_lq <- bind_rows(dennys, laquinta)
+```
+
+We can plot the locations of the two establishments using a scatter plot, and color the points by the establishment type. 
+
+```{r plot-geolocation}
+ggplot(dn_lq, mapping = aes(x = longitude, y = latitude, color = establishment)) +
+  geom_point()
+```
+
+### Exercise 11
+
+```{r NC-vis}
+dn_lq %>% 
+  filter(state == 'NC') %>% 
+  ggplot(aes(x = longitude, 
+             y = latitude, 
+             color = establishment)) + 
+  geom_point(alpha = 0.8) +
+  labs(
+    title = 'North Carolina Dennys & La Quinta Geolocation',
+    subtitle = 'Data filtered by North Carolina only',
+    x = 'Longitute',
+    y = 'Latitude',
+    color = 'Establishment'
+  )
+```
+
+Visually, Mitch Hedberg's joke does not seem true. Denny's and La Quinta do not come in pairs in North Carolina. 
+
+### Exercise 12
+
+```{r TX-vis}
+dn_lq %>% 
+  filter(state == 'TX') %>% 
+  ggplot(aes(x = longitude, 
+             y = latitude, 
+             color = establishment)) + 
+  geom_point(alpha = 0.5) +
+  labs(
+    title = 'Texas Dennys & La Quinta Geolocation',
+    subtitle = 'Data filtered by Texas only',
+    x = 'Longitute',
+    y = 'Latitude',
+    color = 'Establishment'
+  )
+```
+
+This time, Mitch Hedberg's joke seems to be true. Denny's and La Quinta are mostly cluster together.

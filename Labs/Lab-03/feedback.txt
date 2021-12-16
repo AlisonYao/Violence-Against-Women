@@ -1,0 +1,31 @@
+Team 6, 
+Good job! 
+
+Please find some minor comments below. 
+
+1. Exercise 1. You were asked to "Use inline code to answer this question."
+
+In Rmd document we can insert and execute R code two ways. First, using a code chunk
+
+```{r}
+code
+
+```
+
+Second, as inline code, inserting code directly to the text and surrounding it by ```r code ```
+
+For example: 
+
+The dataset contains `r ncol(nobel)` variables and `r nrow(nobel)` observations.
+
+
+This way R will execute the commands specified by ncol() and nrow() functions, and insert the results directly to the sentence. Inline code allows us to avoid mistakes due to manual input. 
+
+Moreover, you can use function dim(dataset_name) to get the number of rows and columns for the dataset. 
+
+
+
+2. Exercise 2.  Also, same comment as in 1. You were asked to "Confirm that ..., once again using inline code."
+
+3. Exercise 3. In your plot there is no migration. It is an illustration of the fact that the majority of Nobel prize winners are based in the US.  Immigration will be added in your next plot. The current plot supports the Buzzfeed claim that "Most living Nobel laureates were based in the US when they won their prizes."
+

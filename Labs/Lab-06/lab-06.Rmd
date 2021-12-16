@@ -1,0 +1,240 @@
+---
+title: 'Lab 6: Regression'
+author: "Robert Kubinec, Alison Yao"
+date: "11/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# be sure to install of these packages if they aren't installed automatically
+
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(brms)
+library(ggthemes)
+```
+
+## Introduction
+
+Please complete the prompts and code chunks in this Rmarkdown file for Lab 6. Please ensure the file knits and produces a report that appears correct before submitting via a Git push to the repo created for you.
+
+The data for this lab comes from a research group studying some of the factors that predicted COVID-19 mortality. It can be downloaded directly from a website using the `read_csv` command from the `readr` package (this function can also take a filename from a website):
+
+```{r load_data}
+covid_data <- read_csv("https://wzb-ipi.github.io/corona/df_full.csv")
+glimpse(covid_data)
+```
+
+As can be seen, this dataset has a lot of different columns available. For our purposes we will focus on the column `deaths`, which records the daily reported COVID-19 deaths by country.
+
+## Histogram of COVID-19 Deaths
+
+Please make a histogram (`geom_histogram`) with `ggplot2` for the `deaths` column. Also, use the `facet_wrap` function to facet the plot by the `continent` column. (Hint: if you forgot how these functions work, use the help command `?` plus the command name to read examples). To make your plot look pretty, add the `+ theme_tufte()` command at the end of the ggplot function call, and be sure to add appropriate legends/labels.
+
+```{r hist_deaths}
+covid_data %>% 
+ggplot(aes(x = deaths)) + 
+  facet_wrap(. ~ continent) +
+  geom_histogram() + 
+  theme_tufte() + 
+  labs(
+    title = 'Histogram of deaths',
+    subtitle = 'faceted by continent',
+    x = 'Daily Death Number',
+    y = 'Frequency'
+  )
+```
+
+You might notice that the number of deaths are spread out. You can change the x axis to use multiples of 10 by adding the `+ scale_x_log10()` to the ggplot2 call. Do that in the chunk below to compare with the plot above:
+
+```{r hist_deaths_log10}
+covid_data %>% 
+ggplot(aes(x = deaths)) + 
+  facet_wrap(. ~ continent) +
+  geom_histogram() + 
+  scale_x_log10() +
+  theme_tufte() + 
+  labs(
+    title = 'Histogram of deaths',
+    subtitle = 'faceted by continent',
+    x = 'Daily Death Number',
+    y = 'Frequency'
+  )
+```
+
+Compared to the previous graph, this one looks more normally distributed and the differences in the bar heights are smaller.
+
+Based on these histograms, which continents seem to have the highest numbers of daily COVID-19 deaths?
+
+Europe. The mean of the log(x) distribution seems to be the biggest (around 100), then the x value must have been the biggest. 
+
+## Regression Model: Univariate
+
+We will first look at associations between COVID-19 deaths and a column/variable called `pandemic_prep` in the dataset. This variable is a measure of how prepared a country was for pandemics in general before COVID-19 hit.
+
+Enter in the correct formula arguments to the `brm` function to predict `deaths` as the outcome with `pandemic_prep` as the independent (right-hand side) variable. Then run the code chunk to fit the model. (Hint: check the `brm` command help page for examples).
+
+```{r unireg}
+deaths_univ_mod <- brm(formula = deaths ~ pandemic_prep,
+                       data=covid_data,
+                       refresh=0)
+
+summary(deaths_univ_mod)
+```
+
+Based on the output from the summary command, you should be able to see the value of the beta coefficient for the `pandemic_prep` variable (i.e., the slope). In the following sentence, fill in the blanks to interpret the association for the variables:
+
+For a 1 unit increase in `pandemic_prep`, the number of COVID-19 deaths increased by `r fixef(deaths_univ_mod)[2]` on average (i.e. the most likely estimate), with an uncertainty interval from `r fixef(deaths_univ_mod)[6]` to `r fixef(deaths_univ_mod)[8]`. 
+
+It looks like `pandemic_prep` actually increased COVID-19 deaths. Do you think this association is causal? Why or why not?
+
+No, it is not. One should not say that `pandemic_prep` increased COVID-19 deaths. Correlation does not necessarily imply causality, so the only thing we are certain is that there is an association. Instead, one should say that the increase of `pandemic_prep` is associated with an increase in COVID-19 deaths. Also, from simple logic, it does not make sense that preparation causes covid deaths.
+
+
+## Air Travel and Preparedness
+
+We will next look at a variable that correlates with `pandemic_prep` and could also affect `deaths`. This variable is `air_travel`, or the measure of the average total number of flights into a given country over time. First, to examine the association visually, construct a scatterplot (`geom_point`) with `ggplot2` where `pandemic_prep` is on the x axis and `air_travel` is on the y axis. You should also facet this plot by `continent` using `facet_wrap`. To make your plot look pretty, add the `+ theme_tufte()` command at the end of the ggplot function call, and be sure to add appropriate legends/labels.
+
+```{r plot_travel}
+covid_data %>%
+ggplot(aes(x = pandemic_prep, y = air_travel)) + 
+  geom_point() + 
+  facet_wrap(. ~ continent) + 
+  theme_tufte() + 
+  labs(
+    title = 'Association between Share of Population over 60 and Pandemic Preperation before COVID-19',
+    x = 'Pandemic Preperation before COVID-19',
+    y = 'Share of Population over 60'
+  )
+```
+
+Now do the same plot except add the `stat_smooth(method="lm")` command to add a line of best fit to the relationship:
+
+```{r plot_fit}
+covid_data %>%
+ggplot(aes(x = pandemic_prep, y = air_travel)) + 
+  geom_point() + 
+  facet_wrap(. ~ continent) + 
+  stat_smooth(method="lm") +
+  theme_tufte() + 
+  labs(
+    title = 'Association between Share of Population over 60 and Pandemic Preperation before COVID-19',
+    subtitle = 'Line of best fit added',
+    x = 'Pandemic Preperation before COVID-19',
+    y = 'Share of Population over 60'
+  )
+```
+
+On the whole, how would you describe the relationship between `pandemic_prep` and `air_travel`?
+
+They are positively correlated across all the continents. 
+
+Think about the well-known relationship that COVID-19 mortality is much higher for older people. How could `air_travel` be a confounding variable that could explain the odd association between `pandemic_prep` and `deaths`?
+
+Countries with higher air travel have a higher risk of imported pandemics, which cause them to be better prepared. Also, countries with a higher air travel are more susceptible to COVID-19, therefore causing more deaths. Therefore, `air_travel` creates a spurious correlation between `pandemic_prep` and `deaths`.
+
+
+## Control with Regression
+
+To test our theory that `air_travel` might be a confounder that could explain the strange association between `pandemic_prep` and `deaths`, let's do another regression model except we will include both `air_travel` *and* `pandemic_prep` as right-hand side variables (join with the `+` sign) with `deaths` as the outcome/left-hand side variable.
+
+```{r conf_mod}
+covid_bivar_mod <- brm(formula= deaths ~ air_travel + pandemic_prep, 
+                       data=covid_data, 
+                       refresh=0)
+summary(covid_bivar_mod)
+```
+
+Now fill out  the sentence again about the relationship between `pandemic_prep` and `deaths`:
+
+For a 1 unit increase in `pandemic_prep`, the number of COVID-19 deaths increased by `r fixef(covid_bivar_mod)[3]` on average (i.e. the most likely estimate), with an uncertainty interval from `r fixef(covid_bivar_mod)[9]` to `r fixef(covid_bivar_mod)[12]`. 
+
+Compared to your earlier estimate, including `air_travel` reduced the size of the association by about one-half, or about 50% decrease. There is still a puzzling association in that countries with higher levels of pandemic preparedness experienced more COVID-19 deaths, but the original association we looked at can be partly explained by the inclusion of air travel as a *control* variable.
+
+Why might the level of air travel in a country be a possible explanation for why that country is more prepared for pandemics and also more likely to experience COVID-19 deaths?
+
+A higher level of air travel means that the average total number of flights into a given country is higher. Then, the country might be more prepared for any pandemics because more flights have a higher risk of spreading pandemics. Also, countries with a higher air travel are more susceptible to COVID-19, therefore causing more deaths.
+
+## Posterior Predictions
+
+Finally, we will use our fitted model to examine how many COVID-19 deaths a country might experience given different levels of pandemic preparedness and air travel. To do so we will use the `posterior_epred` function from the `brms` package to calculate draws/samples for our experiments.
+
+First, fill in the code in the chunk below to find the predicted number of COVID-19 deaths for a country with the *minimum* (hint: `min` function) pandemic preparedness score and the *maximum* (hint: `max` function) air travel. (Another hint: you may need to include the `na.rm=T` argument to these functions given the presence of `NA` values). 
+
+To create our predictions, we will pass a `tibble` with these values to the `posterior_epred` function:
+
+```{r min_max}
+
+# use an appropriate function to create these columns in the 
+# underlines below
+
+predict_data <- tibble(pandemic_prep = min(covid_data$pandemic_prep, na.rm=T),
+                       air_travel = max(covid_data$air_travel, na.rm=T))
+
+
+mod_pred <- posterior_epred(covid_bivar_mod,
+                            newdata=predict_data)
+
+# we want to convert if from a matrix to a tibble
+
+mod_pred <- as_tibble(mod_pred)
+
+summary(mod_pred$V1)
+
+```
+
+
+Based on the summary of the posterior draws shown above, what is the most likely (mean/median) value for the prediction? What is a plausible uncertainty interval for the predicted COVID-19 deaths (i.e. 1st and 3rd quartiles)?
+
+The most likely mean is `r summary(mod_pred$V1)[4]` and the most likely medium is `r summary(mod_pred$V1)[3]`. A plausible uncertainty interval is from `r summary(mod_pred$V1)[2]` to `r summary(mod_pred$V1)[5]`.
+
+Now we'll do the same thing, except we'll calculate predicted COVID-19 deaths for the *maximum* pandemic preparedness and *minimum* air travel:
+
+```{r max_min}
+
+# use an appropriate function to create these columns in the 
+# underlines below
+
+predict_data <- tibble(pandemic_prep = max(covid_data$pandemic_prep, na.rm=T),
+                       air_travel = min(covid_data$air_travel, na.rm=T))
+
+
+mod_pred <- posterior_epred(covid_bivar_mod,
+                            newdata=predict_data)
+
+# we want to convert if from a matrix to a tibble
+
+mod_pred <- as_tibble(mod_pred)
+
+summary(mod_pred$V1)
+
+```
+
+Do you notice anything odd about the model's prediction? Why might this be a strange prediction for COVID-19 deaths?
+
+The negative statistics are odd, because it is impossible for deaths to be negative. 
+
+What happened here is called an issue of *model fit*. There aren't any countries in the data with those specific values for air travel and preparedness (i.e. countries with a ton of pandemic preparedness but no air travel), so our model made a prediction far outside of the data. This is called an extrapolation, and it can be dangerous when we use a model beyond its original scope.
+
+As a final exercise, using the `mod_pred` tibble, make a density plot (`geom_density`) to visualize our uncertainty in terms of the samples we have of the model prediction. Use the `fill` argument to the `geom_density` function to set the interior of the density curve to a pleasing color, and set the `alpha` argument to a value less than 1 to permit the density to be partially transparent. Be sure to add appropriate legends/labels.
+
+```{r dens_plot}
+
+mod_pred %>% 
+  ggplot(aes(x = V1)) + 
+  geom_density(fill = 'skyblue', 
+               alpha = 0.6) + 
+  labs(
+    title = 'Density plot of model prediction uncertainty',
+    x = 'Predicted Value',
+    y = 'Density'
+  )
+
+```
+
+

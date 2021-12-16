@@ -1,0 +1,129 @@
+---
+title: "Lab 01 - Hello R"
+author: "Alison Yao"
+date: "Sept 24, 2021"
+output: 
+  html_document: 
+    theme: journal
+---
+
+## Load packages and data
+
+```{r load-packages, message=FALSE}
+library(tidyverse) 
+library(datasauRus)
+```
+
+## Exercises
+
+### Exercise 1
+
+The `datasaurus_dozen` file has 1846 rows and 3 columns. There are 3 variable: `dataset`, `x`, and `y`. `dataset` indicates which dataset the data is from; `x` means the x values; `y` means the y values.  
+
+Following the instructions, we can check the frequency table:
+
+```{r dataset-frequency-table}
+datasaurus_dozen %>%
+  count(dataset) %>%
+  print(13)
+# strange that print(13) is only going to show the column on the left after knitting.
+```
+We can also check what the first 5 rows look like:
+
+```{r dataset-head}
+# check head
+datasaurus_dozen[1:5,]
+```
+
+
+### Exercise 2
+
+First let's plot the data in the dino dataset:
+
+```{r plot-dino, fig.height=3, fig.width=6}
+dino_data <- datasaurus_dozen %>%
+  filter(dataset == "dino")
+
+ggplot(data = dino_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+```
+
+And next calculate the correlation between `x` and `y` in this dataset:
+
+```{r cor-dino}
+dino_data %>%
+  summarize(r = cor(x, y))
+```
+
+### Exercise 3
+
+<!-- Add code and narrative as needed. -->
+<!-- Note that the R chunks are labelled with `plot-star` and `cor-star` to provide spaces to place the code for plotting and calculating the correlation coefficient. -->
+<!-- To finish, clean up the narrative by removing these instructions. -->
+
+Similarly, we first filter the observations belonging to the star dataset and store the filtering results into a new dataframe called `star_data`. Then, we use `ggplot` to visualize the data in points.
+
+```{r plot-star, fig.height=6, fig.width=6}
+star_data <- datasaurus_dozen %>%
+  filter(dataset == "star")
+
+ggplot(data = star_data, mapping = aes(x = x, y = y)) + 
+  geom_point()
+```
+
+Again, we use the pipe operator `%>%` to send the dataframe `star_data` as the first argument to the `summarize` function and calculate the correlation coefficient. 
+
+```{r cor-star}
+star_data %>%
+  summarize(r = cor(x, y))
+```
+
+Compared to the `r` of `dino`, the `r` of `star` is slightly bigger by 0.0015. 
+
+### Exercise 4
+
+<!-- Add code and narrative as needed. -->
+<!-- Note that two R chunks are given but they are not labeled. -->
+<!-- Use the convention from above to name them appropriately. -->
+
+We filter the observations belonging to the `circle` dataset and store the filtering results into a new dataframe called `circle_data`. Then, we use `ggplot` to visualize the data in points.
+
+```{r plot-circle, fig.height=6, fig.width=6}
+circle_data <- datasaurus_dozen %>%
+  filter(dataset == "circle")
+
+ggplot(data = circle_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+```
+
+We can use the pipe operator `%>%` to send the dataframe `circle_data` as the first argument to the `summarize` function and calculate its correlation coefficient accordingly. 
+
+```{r cor-circle}
+circle_data %>%
+  summarize(r = cor(x, y))
+```
+
+Compared to the `r` of `dino`, the `r` of `circle` is a little bit smaller by about 0.0038.
+
+### Exercise 5
+
+<!-- Add code and narrative as needed. -->
+<!-- To add R chunks either type out the backticks, curly braces, and the letter `r` or use the Insert chunk button above, green C+. -->
+
+First, let's use faceting to plot all datasets at once.
+
+```{r plot-all, fig.height=12, fig.width=6}
+ggplot(datasaurus_dozen, aes(x = x, y = y, color = dataset))+
+  geom_point()+
+  facet_wrap(~ dataset, ncol = 3) +
+  theme(legend.position = "none")
+```
+
+Then, we use the `group_by` function to generate all the summary correlation coefficients.
+
+```{r cor-all}
+datasaurus_dozen %>%
+  group_by(dataset) %>%
+  summarize(r = cor(x, y)) #%>% print(13) I comment this out to show both rows after knitting
+```
+

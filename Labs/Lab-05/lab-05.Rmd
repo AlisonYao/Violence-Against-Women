@@ -1,0 +1,261 @@
+---
+title: "Lab 04 - La Quinta is Spanish for next to Denny's, Pt. 2"
+author: "Alison Yao (yy2564)"
+date: "Oct 12, 2021"
+output: github_document
+---
+
+<!-- instructions: https://rstudio-education.github.io/datascience-box/course-materials/lab-instructions/lab-05/lab-05-wrangle-sp-data.html -->
+
+### Load packages and data
+
+```{r load-packages, message = FALSE}
+library(tidyverse) 
+library(dsbox) 
+```
+
+```{r load-data, message = FALSE}
+states <- read_csv("data/states.csv")
+```
+
+### Exercise 1
+
+There are 3 Denny’s locations in Alaska.
+
+```{r dennys-ak}
+dn_ak <- dennys %>%
+  filter(state == "AK")
+nrow(dn_ak)
+```
+
+
+### Exercise 2
+
+There are 2 La Quinta locations in Alaska.
+
+```{r laquinta-ak}
+lq_ak <- laquinta %>%
+  filter(state == "AK")
+nrow(lq_ak)
+```
+
+### Exercise 3
+
+There are 3 * 2 = 6 pairs between all Denny’s and all La Quinta locations in Alaska, so we need to calculate 6 distances. 
+
+### Exercise 4
+
+```{r full-join-ak}
+dn_lq_ak <- full_join(dn_ak, lq_ak, by = "state")
+dn_lq_ak
+```
+
+There are `r nrow(dn_lq_ak)` observations. The variables are address.x, city.x, state, zip.x, longitude.x, latitude.x, address.y, city.y, zip.y, longitude.y, and latitude.y.
+
+### Exercise 5
+
+When adding a new variable to an existing dataframe, we use the `mutate()` function.
+
+```{r create-function}
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
+
+### Exercise 6
+
+```{r add-distance}
+dn_lq_ak <- dn_lq_ak %>% 
+  mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+dn_lq_ak
+```
+
+### Exercise 7
+
+```{r min-distance}
+dn_lq_ak_mindist <- dn_lq_ak %>%
+  group_by(address.x) %>%
+  summarise(closest = min(distance))
+dn_lq_ak_mindist
+```
+
+### Exercise 8
+
+```{r ak-vis}
+dn_lq_ak_mindist %>% 
+  ggplot(aes(x = closest)) +
+  geom_histogram(binwidth = 0.5) + 
+  labs(
+    title = "Distances between Denny’s and the nearest La Quinta locations in Alaska",
+    subtitle = 'Data filtered by Alaska only',
+    x = "Denny's distance to the closest La Quinta",
+    y = 'Frequency'
+  )
+```
+
+The 3 closest distances ranges from 2.035 to 5.998, with a mean of 4.41, a medium of 5.197 and a standard deviation of 2.09544. 
+
+```{r ak-distribution}
+dn_lq_ak_mindist %>%
+  summarise(
+          count = n(),
+          min_dist = min(closest),
+          mean_dist = mean(closest),
+          median_dist = median(closest),
+          max_dist = max(closest),
+          range_dist = max(closest) - min(closest),
+          SD_dist = sd(closest)
+            )
+```
+
+
+### Exercise 9
+
+```{r NC-analysis}
+dn_nc <- dennys %>% filter(state == "NC") # 28
+dn_nc
+lq_nc <- laquinta %>% filter(state == "NC") # 12
+lq_nc
+dn_lq_nc <- full_join(dn_nc, lq_nc, by = "state") # 336
+dn_lq_nc
+dn_lq_nc <- dn_lq_nc %>% 
+  mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+dn_lq_nc_mindist <- dn_lq_nc %>%
+  group_by(address.x) %>%
+  summarise(closest = min(distance))
+dn_lq_nc_mindist # 28
+```
+
+```{r nc-vis}
+dn_lq_nc_mindist %>% 
+  ggplot(aes(x = closest)) +
+  geom_histogram(binwidth = 2.5) + 
+  labs(
+    title = "Distances between Denny’s and the nearest La Quinta locations in North Carolina",
+    subtitle = 'Data filtered by North Carolina',
+    x = "Denny's distance to the closest La Quinta",
+    y = 'Frequency'
+  )
+```
+
+The 28 closest distances ranges from 1.779 to 187.935, with a mean of 65.44432, a medium of 53.4565 and a standard deviation of 53.42398. 
+
+```{r nc-distribution}
+dn_lq_nc_mindist %>%
+  summarise(
+          count = n(),
+          min_dist = min(closest),
+          mean_dist = mean(closest),
+          median_dist = median(closest),
+          max_dist = max(closest),
+          range_dist = max(closest) - min(closest),
+          SD_dist = sd(closest)
+            )
+```
+
+### Exercise 10
+
+```{r TX-analysis}
+dn_tx <- dennys %>% filter(state == "TX") # 200
+dn_tx
+lq_tx <- laquinta %>% filter(state == "TX") # 237
+lq_tx
+dn_lq_tx <- full_join(dn_tx, lq_tx, by = "state") # 47400
+dn_lq_tx
+dn_lq_tx <- dn_lq_tx %>% 
+  mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+dn_lq_tx_mindist <- dn_lq_tx %>%
+  group_by(address.x) %>%
+  summarise(closest = min(distance))
+dn_lq_tx_mindist # 200
+```
+
+```{r tx-vis}
+dn_lq_tx_mindist %>% 
+  ggplot(aes(x = closest)) +
+  geom_histogram(binwidth = 1) + 
+  labs(
+    title = "Distances between Denny’s and the nearest La Quinta locations in Texas",
+    subtitle = 'Data filtered by Texas',
+    x = "Denny's distance to the closest La Quinta",
+    y = 'Frequency'
+  )
+```
+
+The 200 closest distances ranges from 0.016 to 60.582, with a mean of 5.7918, a medium of 3.3715 and a standard deviation of 8.830715.
+
+```{r tx-distribution}
+dn_lq_tx_mindist %>%
+  summarise(
+          count = n(),
+          min_dist = min(closest),
+          mean_dist = mean(closest),
+          median_dist = median(closest),
+          max_dist = max(closest),
+          range_dist = max(closest) - min(closest),
+          SD_dist = sd(closest)
+            )
+```
+
+### Exercise 11
+
+Here, I am going to choose New York. 
+
+```{r NY-analysis}
+dn_ny <- dennys %>% filter(state == "NY") # 56
+dn_ny
+lq_ny <- laquinta %>% filter(state == "NY") # 19
+lq_ny
+dn_lq_ny <- full_join(dn_ny, lq_ny, by = "state") # 1064
+dn_lq_ny
+dn_lq_ny <- dn_lq_ny %>% 
+  mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+dn_lq_ny_mindist <- dn_lq_ny %>%
+  group_by(address.x) %>%
+  summarise(closest = min(distance))
+dn_lq_ny_mindist # 56
+```
+
+```{r ny-vis}
+dn_lq_ny_mindist %>% 
+  ggplot(aes(x = closest)) +
+  geom_histogram(binwidth = 2) + 
+  labs(
+    title = "Distances between Denny’s and the nearest La Quinta locations in New York",
+    subtitle = 'Data filtered by New York',
+    x = "Denny's distance to the closest La Quinta",
+    y = 'Frequency'
+  )
+```
+
+The 56 closest distances ranges from 0.017 to 88.297, with a mean of 19.66382, a medium of 9.908 and a standard deviation of 23.8474. 
+
+```{r ny-distribution}
+dn_lq_ny_mindist %>%
+  summarise(
+          count = n(),
+          min_dist = min(closest),
+          mean_dist = mean(closest),
+          median_dist = median(closest),
+          max_dist = max(closest),
+          range_dist = max(closest) - min(closest),
+          SD_dist = sd(closest)
+            )
+```
+
+
+### Exercise 12
+
+Among the states I examined, Mitch Hedberg’s joke most likely to hold true in Texas. Because all the distances from Denny's to the closest La Quinta is within 61. The distribution is strongly positively skewed, therefore indicating that the majority of the distances in this distribution are small. Also, there are 200 Denny's in Texas, which is a lot more than the other states I observed. The fact that so many of the pairs are close to each other makes Texas the best proof for the joke.

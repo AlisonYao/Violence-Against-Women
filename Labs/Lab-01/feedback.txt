@@ -1,0 +1,35 @@
+Alison, 
+Great job! 
+
+Some minor comments: 
+
+1. I do not see which command was used to obtain the information about the structure of the dataset: 
+
+Help command is one option
+
+```{r}
+?datasaurus_dozen
+
+```
+Or, alternatively, you can use the command View()
+
+```{r}
+View(datasaurus_dozen)
+
+```
+
+
+2. Function print used in lines 28 and 127 of the code. Function print() has several arguments (you can check help ?print()).
+Instead of print(13), when you do not specify what 13 stands for, use print(n=13), by this we specify that we want R to 
+print 13 rows (n is a number of rows). If you do not specify what is equal to 13, it will set the first argument 
+of the print() function to 13. This argument is width. 
+
+
+3. Comparison of correlation coefficients. If both correlation coefficients are negative, we compare their absolute values,
+and the one with a higher absolute value exhibits a stronger linear relationship between x and y. Dino r = -0.0645, 
+and star r = -0.063. Both of them are negative - inverse relationship between x and y, but dino is slightly bigger 
+(implying a slightly higher correlation between x and y) than star. Though the difference is negligible. In both cases 
+our conclusion is that x and y are not related linearly, but rather non linearly, and we see it from our plots. 
+
+Best, 
+Renata 

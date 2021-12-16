@@ -1,0 +1,13 @@
+Hello Alison, 
+Good job! 
+
+Please find some minor comments below. 
+
+
+1. Exercise 8. Your histogram does not look like a traditional one. It would be better to increase the range of values for the y-axis. Just add to your ggplot function the following term: 
+
++ ylim(0,5)
+
+Overall, the choice of the binwidth could be better. 
+
+2. In exercise 12 you should use descriptive statistics in order to compare states. Median would be a good choice as in some states the values of the min distance variable are very dispersed. The median is robust to outliers. 

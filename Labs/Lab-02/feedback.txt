@@ -1,0 +1,13 @@
+Alison, 
+Great job! 
+
+Please find some minor comments below. 
+
+1. Exercise 1. It would be better to exclude the outlier before you produce the histograms across the continents.
+
+
+2. Exercise 4. You write: "Violin plots give us the distributions, while box plots cannot."
+The violin plot provides the same set of statistics for the distribution as a box plot, but in addition to that it includes the density plot. Any distribution can be described by its mean and variance.  The density plot is the entire distribution of values. 
+
+
+
