@@ -1,0 +1,591 @@
+---
+title: "EDA"
+author: "Alison Yao, Oscar Bray"
+date: "11/22/2021"
+output: distill::distill_article
+---
+
+```{r setup}
+library(tidyverse)
+library(brms)
+library(plotly)
+library(corrplot)
+```
+
+## Load Dataset
+
+First, read the 3 csv files downloaded from 2019 OECD study of violence against women.
+
+ - Attitudes toward violence: The percentage of women who agree that a husband/partner is justified in beating his wife/partner under certain circumstances 
+ 
+ - Prevalence of violence in the lifetime: The percentage of women who have experienced physical and/or sexual violence from an intimate partner at some time in their life
+ 
+ - Laws on domestic violence: Whether the legal framework offers women legal protection from domestic violence Laws on domestic violence are presented as values ranging from 0 to 1, where 0 means that laws or practices do not discriminate against women’s rights and 1 means laws or practices fully discriminate against women’s rights.
+
+```{r load-data}
+attitude_df = read.csv('./Data/attitude.csv')
+law_df = read.csv('./Data/laws.csv')
+prevalence_df = read.csv('./Data/prevalence.csv')
+```
+
+## Initial Findings
+
+By just eyeballing the data, I can see that:
+1. Not all countries are listed and not all countries have record on all three features.
+2. The range of three features are different (0-100% or 0-1). Strange thing is that law only has 4 values: 0.25, 0.5, 0.75 and 1. It looks more categorical than continuous. 
+3. The countries are abbreviated...so I need some way to match the code with the names
+
+```{r load-code}
+# Data Source: https://www.iban.com/country-codes
+# country_code_df = read.csv('./Data/country_code.csv')
+```
+
+```{r}
+# check_code <- function(df){
+#    for (code in df$LOCATION){
+#     if (code %in% country_code_df$Abb3) {
+#     } else {
+#       print(code, 'not found!')
+#     }
+#   }
+# }
+# check_code(attitude_df)
+# check_code(law_df)
+# check_code(prevalence_df)
+# # There should not be any output - Awesome!
+```
+
+<!-- So now I have a way to match the country codes to their English names.  -->
+
+Wait a second, I recall that we used similar data in Lab06. And it also provides continent data. This is even better.
+
+```{r}
+covid_data <- read_csv("https://wzb-ipi.github.io/corona/df_full.csv")
+covid_subset <- covid_data[c('geoid2', 'country', 'continent', 'gdp_pc')]
+covid_subset <- covid_subset[!duplicated(covid_subset), ]
+covid_subset
+# check if there are duplicated countries by running
+# dplyr::count(covid_subset, geoid2, sort = TRUE)
+```
+
+```{r}
+check_code <- function(df){
+   for (code in df$LOCATION){
+    if (code %in% covid_subset$geoid2) {
+    } else {
+      print(paste0("Not Found: ", code))
+    }
+  }
+}
+check_code(attitude_df)
+check_code(law_df)
+check_code(prevalence_df)
+# There should not be any output - but there are two
+```
+Let's add them manually.
+
+```{r}
+covid_subset <- covid_subset %>% add_row(geoid2 = "HKG", 
+                         country = "Hong Kong",
+                         continent = "Asia", 
+                         gdp_pc = NA)
+covid_subset <- covid_subset %>% add_row(geoid2 = "TKM", 
+                         country = "Turkmenistan",
+                         continent = "Asia", 
+                         gdp_pc = NA)
+colnames(covid_subset) <- c('Country', 'CountryName', 'Continent', 'GDP_per_capita')
+covid_subset
+```
+
+Now we can analyze patterns across continents if we want to. 
+
+## Join Data
+
+I will put everything in a dataframe by full outer joining three subsets of the dataframes.
+
+```{r}
+colnames(attitude_df) <- c('LOCATION', 'INDICATOR', 'SUBJECT', 'MEASURE', 'FREQUENCY', 'TIME', 'Value', 'Flag.Codes')
+attitude_sub <- attitude_df[c('LOCATION', 'Value')]
+colnames(attitude_sub) <- c('Country', 'Attitude')
+
+colnames(prevalence_df) <- c('LOCATION', 'INDICATOR', 'SUBJECT', 'MEASURE', 'FREQUENCY', 'TIME', 'Value', 'Flag.Codes')
+prevalence_sub <- prevalence_df[c('LOCATION', 'Value')]
+
+colnames(law_df) <- c('LOCATION', 'INDICATOR', 'SUBJECT', 'MEASURE', 'FREQUENCY', 'TIME', 'Value', 'Flag.Codes')
+law_sub <- law_df[c('LOCATION', 'Value')]
+colnames(law_sub) <- c('Country', 'Law')
+
+colnames(prevalence_sub) <- c('Country', 'Prevalence')
+df <- full_join(attitude_sub, prevalence_sub, by = "Country")
+df <- full_join(df, law_sub, by = "Country")
+df <- left_join(df, covid_subset, by = 'Country')
+df
+```
+
+Looks good! But there must be many empty values. Let's check.
+
+```{r}
+summary(df)
+```
+
+Indeed, there are 11 empty values in Attitude and 34 in Prevalence. 
+
+## Plots
+
+Although we already have some amazing interactive visualization on the data source website, we need to do a bit more vis here.
+
+### Single Variable
+
+```{r}
+df %>% 
+  ggplot(aes(x = Attitude)) +
+  geom_histogram(binwidth=2) + 
+  labs(
+    title = 'Histogram of Attitudes toward violence',
+    subtitle = '152 countries included',
+    x = 'Attitudes',
+    y = 'Frequency'
+  )
+```
+
+Positively skewed. 
+
+```{r}
+df %>% 
+  ggplot(aes(x = Attitude)) +
+  facet_wrap(. ~ Continent, scales = "free") +
+  geom_histogram(binwidth=2) + 
+  labs(
+    title = 'Histogram of Attitudes toward violence',
+    subtitle = 'faceted by 152 countries',
+    x = 'Attitude',
+    y = 'Frequency'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Prevalence)) +
+  geom_histogram(binwidth=2) + 
+  labs(
+    title = 'Histogram of Prevalence of violence in the lifetime',
+    subtitle = '129 countries included',
+    x = 'Prevalence',
+    y = 'Frequency'
+  )
+```
+
+Positively skewed. 
+
+```{r}
+df %>% 
+  ggplot(aes(x = Prevalence)) +
+  facet_wrap(. ~ Continent) +
+  geom_histogram(binwidth=2) + 
+  labs(
+    title = 'Histogram of Prevalence of violence in the lifetime',
+    subtitle = 'faceted by 129 countries',
+    x = 'Prevalence',
+    y = 'Frequency'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Law)) +
+  geom_bar() + 
+  scale_x_continuous(breaks = c(0.25, 0.5, 0.75, 1.00)) + 
+  geom_text(
+      aes(label=after_stat(count)),
+      stat = 'count',
+      nudge_y = 3,
+      va = 'bottom'
+  ) +
+  labs(
+    title = 'Bar Chart of Laws on domestic violence',
+    subtitle = '163 countries included',
+    x = 'Law',
+    y = 'Frequency'
+  )
+```
+
+This one is not so informative because there are only 4 values. Are we really treating it as continuous?
+
+```{r}
+df %>% 
+  ggplot(aes(x = Law)) +
+  facet_wrap(. ~ Continent) +
+  geom_bar() + 
+  scale_x_continuous(breaks = c(0.25, 0.5, 0.75, 1.00)) + 
+  geom_text(
+      aes(label=after_stat(count)),
+      stat = 'count',
+      nudge_y = 3,
+      va = 'bottom'
+  ) +
+  labs(
+    title = 'Bar Chart of Laws on domestic violence',
+    subtitle = 'faceted by 163 countries',
+    x = 'Law',
+    y = 'Frequency'
+  )
+```
+
+### Multi-variable
+
+```{r}
+df %>% 
+  ggplot(aes(x = Attitude, 
+             y = Prevalence, 
+             color = as.factor(Law),
+             shape = Continent)) +
+  geom_point() + 
+  labs(
+    title = 'Scatterplot of Prevalence vs Attitude',
+    x = 'Attitude',
+    y = 'Prevalence',
+    color = 'Law'
+  ) + 
+  scale_colour_viridis_d()
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Attitude, 
+             y = Prevalence, 
+             color = Continent,
+             size = Law)) +
+  geom_point(alpha = 0.8) + 
+  labs(
+    title = 'Scatterplot of Prevalence vs Attitude',
+    x = 'Attitude',
+    y = 'Prevalence',
+    color = 'Continent'
+  ) + 
+  scale_colour_viridis_d()
+```
+
+
+```{r}
+cormat <- round(cor(df[c('Attitude', 'Law', 'Prevalence')] %>% drop_na()), 2)
+corrplot(cormat, 
+         # method = 'color',
+         # order = 'alphabet'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Attitude, y = Prevalence)) +
+  geom_point() + 
+  # stat_smooth(method="lm") +
+  labs(
+    title = 'Scatterplot of Prevalence vs Attitude',
+    x = 'Attitude',
+    y = 'Prevalence'
+  )
+```
+
+We can see a positive correlation. 
+
+```{r}
+# box plots are not as good as bar charts with error bars :(
+df %>% 
+  ggplot(aes(x = as.factor(Law), y = Prevalence)) +
+  geom_boxplot() + 
+  labs(
+    title = 'Boxplot of Prevalence vs Law',
+    x = 'Law',
+    y = 'Prevalence'
+  )
+```
+
+```{r}
+# summary statistics are not bad
+df %>% 
+  ggplot(aes(x = as.factor(Law), y = Prevalence)) +
+   stat_summary() + 
+  labs(
+    title = 'Summary Statistics of Prevalence vs Law',
+    x = 'Law',
+    y = 'Prevalence'
+  )
+```
+
+
+```{r}
+df %>% 
+  ggplot(aes(x = Law, y = Prevalence)) +
+  geom_point() + 
+  # stat_smooth(method="lm") +
+  labs(
+    title = 'Scatterplot of Prevalence vs Law',
+    x = 'Law',
+    y = 'Prevalence'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = as.factor(Law), y = Attitude)) +
+  geom_boxplot() + 
+  labs(
+    title = 'Boxplot of Attitude vs Law',
+    x = 'Law',
+    y = 'Attitude'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = as.factor(Law), y = Attitude)) +
+   stat_summary() + 
+  labs(
+    title = 'Summary Statistics of Attitude vs Law',
+    x = 'Law',
+    y = 'Attitude'
+  )
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Law, y = Attitude)) +
+  geom_point() + 
+  # stat_smooth(method="lm") +
+  labs(
+    title = 'Scatterplot of Attitude vs Law',
+    x = 'Law',
+    y = 'Attitude'
+  )
+```
+
+Now, this is definitely categorical. 
+
+```{r}
+plot_ly(x=df$Attitude,
+        y=df$Prevalence,
+        z=df$Law,
+        type="scatter3d")
+```
+
+This looks fancy but is pretty useless. I cannot see much from this 3D plot. I can't see any obvious regression plane. The model is probably not going to have a high R-squared. 
+
+## Regression (Not really useful now that I think about it)
+
+Since we cannot see much from the plots, let's do a regression analysis to quantify the relationship.  
+
+I think the y should be prevalence, because it seems to be the result of attitude and law. Let's put the prevalence on the left hand side of the equation.
+
+Now I think they are just three indicators. There is no need to run a regression across them. 
+
+```{r}
+# reg1 <- brm(formula = Prevalence ~ Attitude + Law,
+#                        data=df, 
+#                        refresh = 0,
+#                        seed = 123) # stabilize the outcome for reproducibility
+# summary(reg1)
+```
+
+
+## Alcohol (Total) - Spurious Association
+
+```{r}
+alcohol = read.csv('./Data/alcohol.csv')
+```
+
+```{r}
+colnames(alcohol) <- c('CountryName', 'Country', 'Alcohol_pc')
+df <- left_join(df, alcohol, by = 'Country')
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = Alcohol_pc, y = Prevalence)) +
+  geom_point() + 
+  stat_smooth(method="lm") + 
+  labs(
+    title = 'Prevalence vs Alcohol Consumption per capita',
+    x = 'Alcohol Consumption per capita',
+    y = 'Prevalence'
+  )
+```
+
+
+```{r}
+reg2 <- brm(formula = Prevalence ~ Alcohol_pc,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg2)
+```
+
+## poverty_headcount_ratio - Potential Confounder
+
+```{r}
+poverty_headcount_ratio  = read.csv('./Data/poverty_cleaned.csv')
+```
+
+```{r}
+df <- left_join(df, poverty_headcount_ratio, by = 'Country')
+```
+
+```{r}
+reg3 <- brm(formula = Prevalence ~ Alcohol_pc + poverty_headcount_ratio,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg3)
+```
+
+The absolute value, or the magnitude, of the coefficient of alcohol_pc has dropped from 1.52 to 0.96 (about 37%), so we can conclude that poverty_headcount_ratio is a confounder.
+
+And there are not too many nan's for the poverty_headcount_ratio! Awesome! We found one!
+
+```{r}
+summary(df[c('Prevalence','poverty_headcount_ratio')])
+```
+
+## Causal Diagram
+
+```{r}
+library(dagitty)
+library(ggdag)
+```
+
+```{r}
+vaw <- dagitty("dag{
+        VaW -> Law;
+        VaW -> Attitude;
+        VaW -> Prevalence;
+        AlcoholConsumption -> Prevalence;
+        PovertyHeadcount -> Prevalence;
+        PovertyHeadcount -> AlcoholConsumption;
+        Alcohol -> AlcoholConsumption;
+        Poverty -> PovertyHeadcount;
+}")
+
+ggdag(vaw)
+```
+
+The text is too long... How can I fix it???
+
+```{r}
+vaw_dag <- dagify(Law ~ vaw,
+       Attitude ~ vaw,
+       Prevalence ~ vaw + ph + ac + Law + Attitude,
+       ac ~ a + ph,
+       ph ~ p,
+       labels = c("vaw" = "VaW", 
+                  "Law" = "Law",
+                  "Attitude" = "Attitude",
+                  "Prevalence" = "Prevalence",
+                  "ph" = "Poverty\n Headcount",
+                  "p" = "Poverty",
+                  "ac" = "Alcohol\n Consumption",
+                  "a" = "Alcohol"
+                  ),
+       latent = "vaw")
+
+ggdag(vaw_dag, text = FALSE, use_labels = "label")
+```
+
+Q: What are adjustment sets???
+
+```{r}
+# find variables that aren't related
+impliedConditionalIndependencies(vaw_dag)
+
+# find the adjustment set
+adjustmentSets(vaw_dag, exposure="ac", outcome = "Prevalence")
+
+# ggdag version
+ggdag_adjustment_set(vaw_dag, exposure="ac", outcome = "Prevalence")
+
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = poverty_headcount_ratio, y = Prevalence)) +
+  geom_point() + 
+  stat_smooth(method="lm") + 
+  labs(
+    title = 'Prevalence vs poverty_headcount_ratio',
+    x = 'poverty_headcount_ratio',
+    y = 'Prevalence'
+  )
+```
+
+
+## - Alcohol use by gender!
+```{r load-data}
+MaleAlcoholUse <- read_csv('./Data/MaleAlcoholUse.csv')
+head(MaleAlcoholUse)
+colnames(MaleAlcoholUse) <- c('X1', 'Country', 'AlcoholM_pc')
+MaleAlcoholUse <- MaleAlcoholUse[c('Country', 'AlcoholM_pc')]
+```
+```{r load-data}
+FemaleAlcoholUse <- read_csv('./Data/FemaleAlcoholUse.csv')
+head(FemaleAlcoholUse)
+colnames(FemaleAlcoholUse) <- c('X1', 'Country', 'AlcoholF_pc')
+FemaleAlcoholUse <- FemaleAlcoholUse[c('Country', 'AlcoholF_pc')]
+```
+```{r join-data}
+df <- left_join(df, FemaleAlcoholUse, by = 'Country')
+df <- left_join(df, MaleAlcoholUse, by = 'Country')
+head(df)
+```
+
+NOw it's time to graph things!
+```{r scatterplot-prevalence-male-alcohol}
+df %>% 
+  ggplot(aes(x = AlcoholM_pc, y = Prevalence)) +
+  geom_point() + 
+  stat_smooth(method="lm") + 
+  labs(
+    title = 'Prevalence vs Male Alcohol Consumption per capita',
+    x = 'Alcohol Consumption by men per capita',
+    y = 'Prevalence'
+  )
+```
+```{r scatterplot-prevalence-female-alcohol}
+df %>% 
+  ggplot(aes(x = AlcoholF_pc, y = Prevalence)) +
+  geom_point() + 
+  stat_smooth(method="lm") + 
+  labs(
+    title = 'Prevalence vs Female Alcohol Consumption per capita',
+    x = 'Alcohol Consumption by women per capita',
+    y = 'Prevalence'
+  )
+```
+```{r reg-uni-FemaleAlcohol}
+reg_uni2 <- brm(formula = Prevalence ~ AlcoholF_pc,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg_uni2)
+```
+```{r reg-uni-MaleAlcohol}
+reg_uni3 <- brm(formula = Prevalence ~ AlcoholM_pc,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg_uni3)
+```
+
+
+```{r reg-multi-FemaleAlcohol}
+reg3 <- brm(formula = Prevalence ~ AlcoholF_pc + poverty_headcount_ratio,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg3)
+```
+
+```{r reg-multi-MaleAlcohol}
+reg3 <- brm(formula = Prevalence ~ AlcoholM_pc + poverty_headcount_ratio,
+                       data=df, 
+                       refresh = 0,
+                       seed = 123) # stabilize the outcome for reproducibility
+summary(reg3)
+```

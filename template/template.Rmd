@@ -1,0 +1,39 @@
+---
+title: "Team 6 Report"
+description: |
+  Final Project Report for Team 6
+author: 
+  - name: Alison Yao
+    url: https://alisonyao.github.io/
+    affiliation: NYU Shanghai
+    affiliation_url: https://shanghai.nyu.edu/
+  - name: Oscar Bray
+    # url: https://example.com/
+    affiliation: NYU Abu Dhabi
+    affiliation_url: https://nyuad.nyu.edu/en/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+# Introduction
+
+# Literature Review
+Alison added this section, it was not originally there. 
+
+# Theory/Hypotheses
+
+# Data
+
+# Analysis and Interpretation of Results
+
+# Conclusions
+
+
+
+
+
