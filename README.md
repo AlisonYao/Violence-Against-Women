@@ -8,7 +8,7 @@ CDAD-UH 1043EQ Data and Society | Fall 2021 | Final Project
 
 1. 2019 OECD study of violence against women (attitudes, laws and experience of violence): https://data.oecd.org/inequality/violence-against-women.htm#indicator-chart
 
-2. The World Bank Alcohol Consumption: https://www.google.com/url?q=https://data.worldbank.org/indicator/SH.ALC.PCAP.LI&sa=D&source=editors&ust=1639905871931000&usg=AOvVaw1PMXXRVCEnvh0sHFCmpZsX
+2. The World Bank Alcohol Consumption: https://data.worldbank.org/indicator/SH.ALC.PCAP.LI
 
 3. Country-Continent data: https://wzb-ipi.github.io/corona/df_full.csv
 
