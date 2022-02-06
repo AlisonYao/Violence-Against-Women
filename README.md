@@ -10,7 +10,7 @@ CDAD-UH 1043EQ Data and Society | Fall 2021 | Final Project
 
 2. The World Bank Alcohol Consumption: https://data.worldbank.org/indicator/SH.ALC.PCAP.LI
 
-3.The World Bank Poverty Headcount: https://data.worldbank.org/indicator/SI.POV.NAHC
+3. The World Bank Poverty Headcount: https://data.worldbank.org/indicator/SI.POV.NAHC
 
 4. Country-Continent data: https://wzb-ipi.github.io/corona/df_full.csv
 
